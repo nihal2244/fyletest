@@ -3,6 +3,9 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
-    path('bankinfo',views.getifsc,name='bankinfo'),
+    path('withifsc',views.getifsc,name='bankinfo'),
+    path('citybranch',views.filterbyname,name='citybranch'),
+    path('jwt',views.jwtGenerator,name='jwt'),
+    
  
 ]
