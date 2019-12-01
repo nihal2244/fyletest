@@ -1,1 +1,1 @@
-web: gunicorn intertest.wsgi --log-file -
+web: gunicorn bankdetails.wsgi --log-file -
