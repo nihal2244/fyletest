@@ -100,6 +100,3 @@ def filterbyname(request):
     except ObjectDoesNotExist:
         raise Http404
     return JsonResponse({"data": data_list,"message":message}, safe=False)
-
-
-# print(authenticate_jwt('eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE1NzUyMTA2ODMsImV4cCI6MTU3NTY0MjY4M30.NqwQna40xPzdh_LIejlYjKI1K8gZG0z3nnZgjlAZtY0'))
