@@ -34,19 +34,21 @@ def authenticate_jwt(token):
         payload = jwt.decode(token, "SECRET_KEY")
         experation = payload['exp']
         issued = payload['iat']
-        # if int(time.time()) < experation and token:
-        #     return True
-        # else:
-        #     return False
-    except jwt.ExpiredSignatureError:
-        return 'Signature expired. Please log in again.'
-    except jwt.InvalidTokenError:
-        return 'Invalid token. Please log in again.' 
 
+    except jwt.ExpiredSignatureError:
+        return 0
+        # return 'Signature expired'
+    except jwt.InvalidTokenError:
+        return 2
+        # return 'Invalid token' 
+    return 1
 
 def getifsc(request):
     try:
-        if authenticate_jwt(request.META.get('HTTP_AUTHORIZATION', '')):
+        data=[]
+        message=''
+        auth_code=authenticate_jwt(request.META.get('HTTP_AUTHORIZATION'))
+        if  auth_code== 1:
             ifsc_code = Branches.objects.get(pk=request.GET['ifsc'])
             data = {"ifsc": ifsc_code.ifsc,
                     "bank_name": ifsc_code.bank.name,
@@ -56,15 +58,24 @@ def getifsc(request):
                     "district": ifsc_code.district,
                     "state": ifsc_code.state
                     }
+            message="Ok"
+        elif auth_code== 0:
+            message="Signature expired"
+
+        elif auth_code== 2:
+            message="Invalid token"
+
     except ObjectDoesNotExist:
         raise Http404
-    return JsonResponse({"data": data})
+    return JsonResponse({"data": data,"message":message})
 
 
 def filterbyname(request):
     try:
-        if authenticate_jwt(request.META.get('HTTP_AUTHORIZATION', '')):
-            data_list = []
+        auth_code=authenticate_jwt(request.META.get('HTTP_AUTHORIZATION'))
+        data_list = []
+        message=''
+        if  auth_code== 1:
             offset = int(request.GET['offset'])
             limit = int(request.GET['limit'])
             bank_name = request.GET['name']
@@ -79,7 +90,16 @@ def filterbyname(request):
                                 "district": branch.district,
                                 "state": branch.state
                                 })
+            message="Ok"
+        elif auth_code== 0:
+            message="Signature expired"
+
+        elif auth_code== 2:
+            message="Invalid token"
 
     except ObjectDoesNotExist:
         raise Http404
-    return JsonResponse(data_list, safe=False)
+    return JsonResponse({"data": data_list,"message":message}, safe=False)
+
+
+# print(authenticate_jwt('eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE1NzUyMTA2ODMsImV4cCI6MTU3NTY0MjY4M30.NqwQna40xPzdh_LIejlYjKI1K8gZG0z3nnZgjlAZtY0'))
